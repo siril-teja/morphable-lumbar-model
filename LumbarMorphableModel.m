@@ -39,14 +39,14 @@
 % --- Input parameters and directories -- %
 % --------------------------------------- %
 % Enter the variable and y-value of interest. Options are listed above.
-var = 'Spondylolisthesis';
-y = 1.5;
+var = 'Female';
+y = 1;
 
 % Set local directories:
 % Directory containing csv files for the statistical shape models
-ssmdir = 'C:\Users\aclouthi\OneDrive - University of Ottawa\Documents\Projects\2Dto3D\Lumbar\Manuscript\code\SSM';
+ssmdir = 'C:\Users\siril\Desktop\morphable-lumbar-model\SSM';
 % Directory to write .stl to
-outdir = 'C:\Users\aclouthi\OneDrive - University of Ottawa\Documents\Projects\2Dto3D\Lumbar\Manuscript\code\';
+outdir = 'C:\Users\siril\Desktop\morphable-lumbar-model\output';
 
 % --------------------------------------- %
 % ------------ Generate mesh ------------ %
@@ -67,7 +67,12 @@ s = (y-ystats(1))./norm(YL)^2; % score for selected value of y
 pts = reshape(pts_mean',1,[]) + s.*YL*XL'; 
 pts = reshape(pts,3,[])';
 
-stlwrite(fullfile(outdir,[var '_' num2str(y) '.stl']),cns,pts);
+
+
+
+TR = triangulation(cns, pts);
+stlwrite(TR, fullfile(outdir,[var '_' num2str(y) '.stl']));
+
 
 %% Create an animation
 % Generate a series of .stl files that can be opened in Paraview and 
@@ -81,9 +86,9 @@ stlwrite(fullfile(outdir,[var '_' num2str(y) '.stl']),cns,pts);
 var = 'meanVBwedge';
 
 % Directory containing csv files for the statistical shape models
-ssmdir = 'C:\Users\aclouthi\OneDrive - University of Ottawa\Documents\Projects\2Dto3D\Lumbar\Manuscript\code\SSM';
+ssmdir = 'C:\Users\siril\Desktop\morphable-lumbar-model\SSM';
 % Directory to write folder containing multiple stl files for animation
-outdir = 'C:\Users\aclouthi\OneDrive - University of Ottawa\Documents\Projects\2Dto3D\Lumbar\Manuscript\code\';
+outdir = 'C:\Users\siril\Desktop\morphable-lumbar-model\output';
 
 if ~exist(fullfile(outdir,'animation'),'dir')
     mkdir(fullfile(outdir,'animation'))
@@ -104,13 +109,14 @@ ystats = dlmread(fullfile(ssmdir,[var '_y.csv'])); % [mean min max]
 
 % Write meshes morphing from min(y) to max(y) and back to min(y)
 k = 1;
-for y = [linspace(ystats(2),ystats(3),20) linspace(ystats(3),ystats(2),20)]
+for y = [linspace(ystats(2),ystats(3),20), linspace(ystats(3),ystats(2),20)]
    
-    s = (y-ystats(1))./norm(YL)^2; 
-    pts = reshape(pts_mean',1,[]) + s.*YL*XL';
-    pts = reshape(pts,3,[])';
+    s = (y - ystats(1)) ./ norm(YL)^2; 
+    pts = reshape(pts_mean',1,[]) + s .* YL * XL';
+    pts = reshape(pts, 3, [])';
     
-    stlwrite(fullfile(outdir,'animation',['morphableModel_' num2str(k) '.stl']),cns,pts);
+    TR = triangulation(cns, pts);
+    stlwrite(TR, fullfile(outdir, 'animation', ['morphableModel_' num2str(k) '.stl']));
     
-    k = k+1;
+    k = k + 1;
 end

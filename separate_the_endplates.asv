@@ -1,0 +1,34 @@
+% Read the STL file
+TR = stlread('Female_0.stl');
+vertices = TR.Points;
+faces = TR.ConnectivityList;
+
+% Visualize the loaded STL to check the content
+figure;
+trisurf(TR, 'FaceColor', 'cyan', 'EdgeColor', 'none');
+axis equal;
+camlight;
+lighting gouraud;
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Compute connectivity between vertices and faces
+
+[conn, num_conn] = graphconncomp(sparse(faces(:, [1, 2]), faces(:, [2, 1]), 1));
+
+% Visualize and separate based on connectivity
+for i = 1:num_conn
+    region_faces = faces(conn == i, :);
+    region_vertices = vertices(unique(region_faces(:)), :);
+    TR_region = triangulation(region_faces, region_vertices);
+    
+    % Visualize each connected region (vertebra)
+    figure;
+    trisurf(TR_region, 'FaceColor', 'cyan', 'EdgeColor', 'none');
+    axis equal;
+    camlight;
+    lighting gouraud;
+    title(['Vertebra ' num2str(i)]);
+end
+
